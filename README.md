@@ -1,5 +1,8 @@
 # MySQL Cluster Health Inspector
 
+> **Note:** This project is a demo for testing purposes only and is not intended for use in a production environment.
+
+
 A Python-based CLI tool for inspecting the health of Percona MySQL 5.7/8.x clusters. It connects to all nodes in a cluster, runs a suite of pluggable health checks, and produces both terminal output and persistent reports.
 
 ## Key Features
