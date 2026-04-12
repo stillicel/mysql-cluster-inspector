@@ -1,6 +1,7 @@
+Here I attached the Claude Code prompt I used to create this demo
 
-
-## 🚀 Claude Code Prompt: MySQL Cluster Health Inspector
+---
+## MySQL Cluster Health Inspector
 
 ### **Role & Context**
 You are a Senior Database Automation Engineer. Your task is to build a **Python-based CLI tool** for inspecting MySQL clusters. The tool targets **Percona MySQL (versions 5.7, 8.0, and 8.4)** running on K8s-based DBaaS infrastructure.
