@@ -1,0 +1,57 @@
+
+
+## 🚀 Claude Code Prompt: MySQL Cluster Health Inspector
+
+### **Role & Context**
+You are a Senior Database Automation Engineer. Your task is to build a **Python-based CLI tool** for inspecting MySQL clusters. The tool targets **Percona MySQL (versions 5.7, 8.0, and 8.4)** running on K8s-based DBaaS infrastructure.
+
+### **Project Architecture**
+1.  **Plugin-based Design**: Inspection items must be decoupled. Use a registry or plugin pattern where each check is an independent function/class with a single entry point. Adding or removing a check should not affect the core logic.
+2.  **Configuration**: Support a YAML config file containing `username`, `password` (plain text for v1), and `cluster_uuid`.
+3.  **CLI Arguments**:
+    * `-c / --config`: Path to the YAML file.
+    * `--uuid`: Target cluster UUID (Overrides the UUID in the YAML file).
+4.  **Metadata Discovery**:
+    * Implement a mock function `get_cluster_metadata(uuid)` that returns: MySQL version, Master DNS/Port, and a list of Slave DNS/Ports.
+    * Design this as an interface to be replaced by a real REST API in the future.
+
+### **Inspection Logic (The Checkers)**
+Implement the following three initial checks:
+1.  **Connection Count**: Check all nodes. If `Threads_connected > 3500` on any node, mark the cluster as **Unhealthy**.
+2.  **Topology Scale**: If the number of Slaves in the cluster **exceeds 5**, mark as **Unhealthy**.
+3.  **Schema Scale**:
+    * If the number of user databases (names starting with `shopee_`) **exceeds 5**, mark as **Unhealthy**.
+    * If the total count of **InnoDB tables** across the instance **exceeds 10,000**, mark as **Unhealthy**.
+
+### **Output & Naming Convention (Strict Requirement)**
+To avoid overwriting files and support historical auditing, use the following naming convention for ALL output files:
+`{cluster_uuid}_{YYYYMMDD_HHMMSS}_{type}.{extension}` (e.g., `uuid123_20260407_234500_report.json`). 
+**Note: Use a 24-hour format for the timestamp.**
+
+1.  **Terminal Output**: Display a summary of the execution (Success/Failure). **Highlight errors** (e.g., connection failures or crashed checks) in red or bold.
+2.  **File Outputs**:
+    * **JSON Report**: Structured data containing check values and Healthy/Unhealthy status.
+    * **Text Report**: A human-readable formatted version of the inspection results.
+3.  **Logging**: A detailed `execution.log` recording the program's steps and any exceptions.
+4.  **Exit Code**: Always return **0** if the tool completes its execution, regardless of whether the cluster is "Healthy" or "Unhealthy".
+
+### **Technical Specifications**
+* Use `argparse` for CLI, `PyYAML` for configuration.
+* Use `mysql-connector-python` or `PyMySQL` for database interaction.
+* Ensure SQL compatibility for both 5.7 and 8.4 (e.g., handling `SHOW REPLICA STATUS` vs `SHOW SLAVE STATUS`).
+* Capture a single timestamp at the start of execution to ensure all files from the same run have identical names.
+
+### **Workflow Instructions**
+1.  Initialize the project structure with a `checkers/` directory.
+2.  Generate a sample `config.yaml`.
+3.  Write the core engine and the three plugin checkers.
+4.  Verify the file naming logic and the JSON output structure.
+
+#### **Generate README.md**
+The `README.md` should include:
+* **Project Name**: MySQL Cluster Health Inspector.
+* **Overview**: A brief description of the tool (Python-based, plugin-rich, CLI for Percona MySQL 5.7/8.x).
+* **Key Features**: List the core inspection items (Connection count, Topology scale, Schema/Table scale).
+* **Architecture**: Briefly mention the **Plugin-based design** and the **`{UUID}_{Timestamp}` naming convention** for reports.
+* **Installation**: How to install dependencies (e.g., `pip install -r requirements.txt`).
+* **Usage**: Provide example CLI commands (e.g., how to use `--config` and `--uuid`).
